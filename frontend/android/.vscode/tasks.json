@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Gradle: clean assembleDebug (JDK21)",
+			"type": "shell",
+			"command": ".\\gradlew.bat clean assembleDebug",
+			"isBackground": false,
+			"problemMatcher": [
+				"$gradle"
+			]
+		},
+		{
+			"label": "gradle-build-assembleDebug",
+			"type": "shell",
+			"command": ".\\gradlew.bat clean assembleDebug",
+			"isBackground": false,
+			"problemMatcher": [
+				"$gradle"
+			]
+		}
+	]
+}
