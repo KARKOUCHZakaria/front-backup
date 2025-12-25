@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_drawer.dart';
+import '../providers/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileScreenNew extends ConsumerStatefulWidget {
@@ -17,6 +18,8 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(currentUserProvider);
+
     return Scaffold(
       backgroundColor: AppColors.darkBg2,
       appBar: AppBar(
@@ -27,7 +30,10 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+        title: const Text(
+          'Profile',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -41,9 +47,9 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              _buildProfileHeader(context),
+              _buildProfileHeader(context, user),
               const SizedBox(height: 32),
-              _buildPersonalInfoSection(context),
+              _buildPersonalInfoSection(context, user),
               const SizedBox(height: 20),
               _buildSettingsSection(context),
               const SizedBox(height: 32),
@@ -55,15 +61,35 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context) {
+  Widget _buildProfileHeader(BuildContext context, user) {
+    final userName = user?.username ?? 'User';
+    final userEmail = user?.email ?? 'email@example.com';
+
+    // Get user initials
+    String getInitials(String name) {
+      if (name.isEmpty) return 'U';
+      final parts = name.trim().split(' ');
+      if (parts.length >= 2) {
+        return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+      }
+      return name[0].toUpperCase();
+    }
+
     return Column(
       children: [
         Stack(
           children: [
             CircleAvatar(
               radius: 60,
-              backgroundColor: AppColors.textMuted,
-              child: const Icon(Icons.person, size: 60, color: Colors.white),
+              backgroundColor: AppColors.primaryCyan.withOpacity(0.3),
+              child: Text(
+                getInitials(userName),
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
             Positioned(
               bottom: 0,
@@ -80,27 +106,47 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ListTile(
-                            leading: const Icon(Icons.camera_alt, color: Colors.white),
-                            title: const Text('Take Photo', style: TextStyle(color: Colors.white)),
+                            leading: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                            ),
+                            title: const Text(
+                              'Take Photo',
+                              style: TextStyle(color: Colors.white),
+                            ),
                             onTap: () async {
-                              await picker.pickImage(source: ImageSource.camera);
+                              await picker.pickImage(
+                                source: ImageSource.camera,
+                              );
                               if (context.mounted) {
                                 Navigator.pop(ctx);
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Photo updated!')),
+                                  const SnackBar(
+                                    content: Text('Photo updated!'),
+                                  ),
                                 );
                               }
                             },
                           ),
                           ListTile(
-                            leading: const Icon(Icons.photo_library, color: Colors.white),
-                            title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white)),
+                            leading: const Icon(
+                              Icons.photo_library,
+                              color: Colors.white,
+                            ),
+                            title: const Text(
+                              'Choose from Gallery',
+                              style: TextStyle(color: Colors.white),
+                            ),
                             onTap: () async {
-                              await picker.pickImage(source: ImageSource.gallery);
+                              await picker.pickImage(
+                                source: ImageSource.gallery,
+                              );
                               if (context.mounted) {
                                 Navigator.pop(ctx);
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Photo updated!')),
+                                  const SnackBar(
+                                    content: Text('Photo updated!'),
+                                  ),
                                 );
                               }
                             },
@@ -125,7 +171,7 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
         ),
         const SizedBox(height: 16),
         Text(
-          'Aria Chen',
+          userName,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w700,
@@ -133,26 +179,44 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
         ),
         const SizedBox(height: 4),
         Text(
-          'aria.chen@email.com',
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 14,
-          ),
+          userEmail,
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
         ),
+        if (user?.identityVerified == true) ...[
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.verified, color: AppColors.primaryCyan, size: 16),
+              const SizedBox(width: 4),
+              Text(
+                'Verified',
+                style: TextStyle(
+                  color: AppColors.primaryCyan,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildPersonalInfoSection(BuildContext context) {
+  Widget _buildPersonalInfoSection(BuildContext context, user) {
+    final userName = user?.username ?? 'Not set';
+    final userEmail = user?.email ?? 'Not set';
+    final userPhone = user?.phone ?? 'Not set';
+    final userCin = user?.cin ?? 'Not verified';
+    final countryCode = user?.countryCode ?? '';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.darkTeal,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.08),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,77 +232,28 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
           const SizedBox(height: 16),
           _buildInfoTile(
             icon: Icons.person_outline,
-            label: 'Aria Chen',
+            label: userName,
             onTap: () {},
           ),
-          const SizedBox(height: 12),
+          const Divider(color: Colors.white12, height: 32),
+          _buildInfoTile(
+            icon: Icons.email_outlined,
+            label: userEmail,
+            onTap: () {},
+          ),
+          const Divider(color: Colors.white12, height: 32),
           _buildInfoTile(
             icon: Icons.phone_outlined,
-            label: '+1 (555) 123-4567',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Phone number edit coming soon')),
-              );
-            },
+            label: userPhone.isNotEmpty && userPhone != 'Not set'
+                ? '$countryCode $userPhone'
+                : userPhone,
+            onTap: () {},
           ),
-          const SizedBox(height: 12),
+          const Divider(color: Colors.white12, height: 32),
           _buildInfoTile(
-            icon: Icons.lock_outline,
-            label: 'Change Password',
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  backgroundColor: AppColors.darkTeal,
-                  title: const Text('Change Password', style: TextStyle(color: Colors.white)),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        obscureText: true,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'Current Password',
-                          labelStyle: TextStyle(color: AppColors.textSecondary),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.textSecondary),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        obscureText: true,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'New Password',
-                          labelStyle: TextStyle(color: AppColors.textSecondary),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.textSecondary),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      child: Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Password updated successfully')),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryCyan),
-                      child: const Text('Update', style: TextStyle(color: Colors.black)),
-                    ),
-                  ],
-                ),
-              );
-            },
-            showArrow: true,
+            icon: Icons.badge_outlined,
+            label: 'CIN: $userCin',
+            onTap: () {},
           ),
         ],
       ),
@@ -251,10 +266,7 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
       decoration: BoxDecoration(
         color: AppColors.darkTeal,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.08),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,7 +288,9 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
               setState(() => _darkMode = val);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(val ? 'Dark mode enabled' : 'Light mode enabled'),
+                  content: Text(
+                    val ? 'Dark mode enabled' : 'Light mode enabled',
+                  ),
                   duration: const Duration(seconds: 1),
                 ),
               );
@@ -288,7 +302,9 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
             label: 'Notifications',
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications settings coming soon')),
+                const SnackBar(
+                  content: Text('Notifications settings coming soon'),
+                ),
               );
             },
             showArrow: true,
@@ -313,14 +329,20 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   backgroundColor: AppColors.darkTeal,
-                  title: const Text('Help & Support', style: TextStyle(color: Colors.white)),
+                  title: const Text(
+                    'Help & Support',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Contact us at:',
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       const Text(
@@ -342,7 +364,10 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(),
-                      child: Text('Close', style: TextStyle(color: AppColors.primaryCyan)),
+                      child: Text(
+                        'Close',
+                        style: TextStyle(color: AppColors.primaryCyan),
+                      ),
                     ),
                   ],
                 ),
@@ -359,19 +384,29 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   backgroundColor: AppColors.darkTeal,
-                  title: const Text('About CreditAI', style: TextStyle(color: Colors.white)),
+                  title: const Text(
+                    'About CreditAI',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'CreditAI',
-                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Version 1.0.0',
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -381,14 +416,20 @@ class _ProfileScreenNewState extends ConsumerState<ProfileScreenNew> {
                       const SizedBox(height: 16),
                       Text(
                         '© 2025 CreditAI Inc.',
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(),
-                      child: Text('Close', style: TextStyle(color: AppColors.primaryCyan)),
+                      child: Text(
+                        'Close',
+                        style: TextStyle(color: AppColors.primaryCyan),
+                      ),
                     ),
                   ],
                 ),

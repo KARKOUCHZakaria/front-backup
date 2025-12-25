@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers.dart';
+import '../providers/auth_provider.dart';
+import '../models/application.dart';
 import '../theme/app_theme.dart';
 import '../widgets/responsive_builder.dart';
 import '../widgets/app_drawer.dart';
@@ -13,8 +15,41 @@ class UserHomeDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final apps = ref.watch(applicationsProvider);
-    
+    final user = ref.watch(currentUserProvider);
+    final userId = user?.id;
+
+    // Debug: Log user info
+    print('🔍 Dashboard - User: ${user?.username}, ID: $userId');
+
+    // Fetch applications and credit score if user is logged in
+    final applicationsAsync = userId != null
+        ? ref.watch(userApplicationsProvider(userId))
+        : const AsyncValue.data(<Application>[]);
+
+    final creditScoreAsync = userId != null
+        ? ref.watch(userCreditScoreProvider(userId))
+        : const AsyncValue.data(null);
+
+    // Debug: Log async states
+    print(
+      '🔍 Applications loading: ${applicationsAsync.isLoading}, hasValue: ${applicationsAsync.hasValue}',
+    );
+    print(
+      '🔍 CreditScore loading: ${creditScoreAsync.isLoading}, hasValue: ${creditScoreAsync.hasValue}',
+    );
+
+    applicationsAsync.whenData(
+      (apps) => print('✅ Applications loaded: ${apps.length} items'),
+    );
+    if (applicationsAsync.hasError) {
+      print('❌ Applications error: ${applicationsAsync.error}');
+    }
+
+    creditScoreAsync.whenData((score) => print('✅ Credit score: $score'));
+    if (creditScoreAsync.hasError) {
+      print('❌ Credit score error: ${creditScoreAsync.error}');
+    }
+
     return Scaffold(
       backgroundColor: AppColors.darkBg,
       appBar: AppBar(
@@ -25,7 +60,10 @@ class UserHomeDashboardScreen extends ConsumerWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Dashboard', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+        title: const Text(
+          'Dashboard',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -53,17 +91,30 @@ class UserHomeDashboardScreen extends ConsumerWidget {
               desktop: 48.0,
             ).getValue(deviceType);
 
+            // Show loading state
+            if (applicationsAsync.isLoading || creditScoreAsync.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            // Get applications and credit score from AsyncValue
+            final applications = applicationsAsync.value ?? [];
+            final creditScore =
+                creditScoreAsync.value ?? 785; // Default to 785 if no data
+
             // For desktop and tablet, use a two-column layout
-            if (deviceType == DeviceType.desktop || deviceType == DeviceType.tablet) {
+            if (deviceType == DeviceType.desktop ||
+                deviceType == DeviceType.tablet) {
               return SingleChildScrollView(
                 child: Center(
                   child: Container(
-                    constraints: BoxConstraints(maxWidth: deviceType == DeviceType.desktop ? 1400 : 1000),
+                    constraints: BoxConstraints(
+                      maxWidth: deviceType == DeviceType.desktop ? 1400 : 1000,
+                    ),
                     padding: EdgeInsets.all(padding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeader(context, deviceType),
+                        _buildHeader(context, deviceType, ref),
                         SizedBox(height: spacing),
                         // Two-column layout for desktop/tablet
                         Row(
@@ -74,7 +125,11 @@ class UserHomeDashboardScreen extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildScoreCard(context, deviceType),
+                                  _buildScoreCard(
+                                    context,
+                                    deviceType,
+                                    creditScore,
+                                  ),
                                   SizedBox(height: spacing),
                                   _buildQuickActions(context, deviceType),
                                 ],
@@ -83,7 +138,11 @@ class UserHomeDashboardScreen extends ConsumerWidget {
                             SizedBox(width: spacing),
                             Expanded(
                               flex: 3,
-                              child: _buildRecentActivity(context, apps, deviceType),
+                              child: _buildRecentActivity(
+                                context,
+                                applications,
+                                deviceType,
+                              ),
                             ),
                           ],
                         ),
@@ -101,13 +160,13 @@ class UserHomeDashboardScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader(context, deviceType),
+                    _buildHeader(context, deviceType, ref),
                     SizedBox(height: spacing),
-                    _buildScoreCard(context, deviceType),
+                    _buildScoreCard(context, deviceType, creditScore),
                     SizedBox(height: spacing),
                     _buildQuickActions(context, deviceType),
                     SizedBox(height: spacing),
-                    _buildRecentActivity(context, apps, deviceType),
+                    _buildRecentActivity(context, applications, deviceType),
                   ],
                 ),
               ),
@@ -118,7 +177,11 @@ class UserHomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, DeviceType deviceType) {
+  Widget _buildHeader(
+    BuildContext context,
+    DeviceType deviceType,
+    WidgetRef ref,
+  ) {
     final avatarRadius = ResponsiveValue<double>(
       mobile: 24,
       tablet: 28,
@@ -131,12 +194,27 @@ class UserHomeDashboardScreen extends ConsumerWidget {
       desktop: 30,
     ).getValue(deviceType);
 
+    final user = ref.watch(currentUserProvider);
+    final userName = user?.username ?? 'User';
+
+    // Get time-based greeting
+    final hour = DateTime.now().hour;
+    final greeting = hour < 12
+        ? 'Good Morning'
+        : hour < 18
+        ? 'Good Afternoon'
+        : 'Good Evening';
+
     return Row(
       children: [
         CircleAvatar(
           radius: avatarRadius,
           backgroundColor: AppColors.primaryCyan.withOpacity(0.2),
-          child: Icon(Icons.person, color: AppColors.primaryCyan, size: avatarRadius * 0.8),
+          child: Icon(
+            Icons.person,
+            color: AppColors.primaryCyan,
+            size: avatarRadius * 0.8,
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -144,7 +222,7 @@ class UserHomeDashboardScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Good Morning, Alex',
+                '$greeting, $userName',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -166,7 +244,11 @@ class UserHomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildScoreCard(BuildContext context, DeviceType deviceType) {
+  Widget _buildScoreCard(
+    BuildContext context,
+    DeviceType deviceType,
+    int creditScore,
+  ) {
     final cardPadding = ResponsiveValue<double>(
       mobile: 28,
       tablet: 36,
@@ -185,15 +267,23 @@ class UserHomeDashboardScreen extends ConsumerWidget {
       desktop: 72,
     ).getValue(deviceType);
 
+    // Determine score status
+    final scoreStatus = creditScore >= 750
+        ? 'Excellent'
+        : creditScore >= 700
+        ? 'Very Good'
+        : creditScore >= 650
+        ? 'Good'
+        : creditScore >= 600
+        ? 'Fair'
+        : 'Poor';
+
     return Container(
       padding: EdgeInsets.all(cardPadding),
       decoration: BoxDecoration(
         color: AppColors.darkTeal,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.08),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
       ),
       child: Column(
         children: [
@@ -202,7 +292,7 @@ class UserHomeDashboardScreen extends ConsumerWidget {
             height: gaugeSize,
             child: CustomPaint(
               painter: ScoreGaugePainter(
-                score: 785,
+                score: creditScore.toDouble(),
                 maxScore: 900,
                 strokeWidth: 16,
                 activeColor: AppColors.primaryCyan,
@@ -213,7 +303,7 @@ class UserHomeDashboardScreen extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '785',
+                      '$creditScore',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -235,14 +325,32 @@ class UserHomeDashboardScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.success.withOpacity(0.15),
+              color:
+                  (creditScore >= 700
+                          ? AppColors.success
+                          : creditScore >= 600
+                          ? AppColors.warning
+                          : AppColors.error)
+                      .withOpacity(0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.success.withOpacity(0.3)),
+              border: Border.all(
+                color:
+                    (creditScore >= 700
+                            ? AppColors.success
+                            : creditScore >= 600
+                            ? AppColors.warning
+                            : AppColors.error)
+                        .withOpacity(0.3),
+              ),
             ),
             child: Text(
-              'Excellent',
+              scoreStatus,
               style: TextStyle(
-                color: AppColors.success,
+                color: creditScore >= 700
+                    ? AppColors.success
+                    : creditScore >= 600
+                    ? AppColors.warning
+                    : AppColors.error,
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
@@ -321,9 +429,15 @@ class UserHomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, DeviceType deviceType, {required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildActionButton(
+    BuildContext context,
+    DeviceType deviceType, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     final isNewApp = label == 'New Application';
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -342,7 +456,9 @@ class UserHomeDashboardScreen extends ConsumerWidget {
           color: isNewApp ? null : AppColors.darkTeal,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isNewApp ? AppColors.primaryCyan.withOpacity(0.5) : Colors.white.withOpacity(0.08),
+            color: isNewApp
+                ? AppColors.primaryCyan.withOpacity(0.5)
+                : Colors.white.withOpacity(0.08),
             width: isNewApp ? 1.5 : 1,
           ),
           boxShadow: isNewApp
@@ -366,7 +482,10 @@ class UserHomeDashboardScreen extends ConsumerWidget {
                     : AppColors.primaryCyan.withOpacity(0.15),
                 shape: BoxShape.circle,
                 border: isNewApp
-                    ? Border.all(color: AppColors.primaryCyan.withOpacity(0.4), width: 2)
+                    ? Border.all(
+                        color: AppColors.primaryCyan.withOpacity(0.4),
+                        width: 2,
+                      )
                     : null,
               ),
               child: Icon(
@@ -391,54 +510,128 @@ class UserHomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentActivity(BuildContext context, List<dynamic> apps, DeviceType deviceType) {
+  Widget _buildRecentActivity(
+    BuildContext context,
+    List<Application> applications,
+    DeviceType deviceType,
+  ) {
     final titleSize = ResponsiveValue<double>(
       mobile: 22,
       tablet: 26,
       desktop: 30,
     ).getValue(deviceType);
 
+    // Sort applications by creation date (newest first) and take first 3
+    final recentApps = applications.isNotEmpty
+        ? (applications.toList()
+                ..sort((a, b) => b.createdAt.compareTo(a.createdAt)))
+              .take(3)
+              .toList()
+        : <Application>[];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Recent Activity',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontSize: titleSize,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Recent Activity',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: titleSize,
+              ),
+            ),
+            if (applications.isNotEmpty)
+              TextButton(
+                onPressed: () => context.go('/user/applications'),
+                child: Text(
+                  'View All',
+                  style: TextStyle(
+                    color: AppColors.primaryCyan,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 16),
-        _buildActivityItem(
-          context,
-          bank: 'Chase Bank',
-          amount: '\$5,000',
-          type: 'Personal Loan',
-          date: 'Oct 28',
-          status: 'Approved',
-          statusColor: AppColors.success,
-        ),
-        const SizedBox(height: 12),
-        _buildActivityItem(
-          context,
-          bank: 'American Express',
-          amount: '\$10,000',
-          type: 'Business Credit',
-          date: 'Oct 25',
-          status: 'Pending',
-          statusColor: AppColors.warning,
-        ),
-        const SizedBox(height: 12),
-        _buildActivityItem(
-          context,
-          bank: 'Citi Bank',
-          amount: '\$1,500',
-          type: 'Credit Card',
-          date: 'Oct 21',
-          status: 'Rejected',
-          statusColor: AppColors.error,
-        ),
+        if (recentApps.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.inbox_outlined,
+                    size: 64,
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No applications yet',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () => context.go('/user/documents'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryCyan,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Start New Application'),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          ...recentApps.asMap().entries.map((entry) {
+            final app = entry.value;
+            final isLast = entry.key == recentApps.length - 1;
+
+            // Format date
+            final now = DateTime.now();
+            final createdAt = app.createdAt;
+            final difference = now.difference(createdAt);
+            final dateStr = difference.inDays == 0
+                ? 'Today'
+                : difference.inDays == 1
+                ? 'Yesterday'
+                : '${createdAt.month}/${createdAt.day}';
+
+            // Determine status color
+            final statusColor = app.status.toUpperCase() == 'APPROVED'
+                ? AppColors.success
+                : app.status.toUpperCase() == 'REJECTED'
+                ? AppColors.error
+                : app.status.toUpperCase() == 'PENDING'
+                ? AppColors.warning
+                : AppColors.primaryCyan;
+
+            // Get organization/bank name (use organization type or default)
+            final bankName = app.organizationType ?? 'Credit Application';
+
+            return Column(
+              children: [
+                _buildActivityItem(
+                  context,
+                  bank: bankName,
+                  amount: app.loanAmountDisplay,
+                  type: app.nameContractType ?? 'Loan',
+                  date: dateStr,
+                  status: app.statusDisplay,
+                  statusColor: statusColor,
+                ),
+                if (!isLast) const SizedBox(height: 12),
+              ],
+            );
+          }),
       ],
     );
   }
@@ -459,10 +652,7 @@ class UserHomeDashboardScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: AppColors.darkTeal,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.08),
-            width: 1,
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
         ),
         child: Row(
           children: [
@@ -488,7 +678,10 @@ class UserHomeDashboardScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: statusColor.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
@@ -536,7 +729,7 @@ class UserHomeDashboardScreen extends ConsumerWidget {
       ),
     );
   }
-  
+
   // Commented out unused method
   /*
   Widget _buildRecentApplications(BuildContext context) {
@@ -588,7 +781,7 @@ class UserHomeDashboardScreen extends ConsumerWidget {
     );
   }
   */
-  
+
   /*
   Widget _buildApplicationItem({
     required String date,
@@ -689,14 +882,14 @@ class ScoreGaugePainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
     final progress = (score / maxScore).clamp(0.0, 1.0);
-    
+
     // Background arc
     final bgPaint = Paint()
       ..color = inactiveColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
-    
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -math.pi * 0.75,
@@ -704,14 +897,14 @@ class ScoreGaugePainter extends CustomPainter {
       false,
       bgPaint,
     );
-    
+
     // Progress arc
     final progressPaint = Paint()
       ..color = activeColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
-    
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -math.pi * 0.75,

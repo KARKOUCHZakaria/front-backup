@@ -1,0 +1,752 @@
+2025-12-24 20:08:41 [main] INFO  c.e.c.CreditScoringApplication - Starting CreditScoringApplication v1.0.0 using Java 21.0.8 with PID 3980 (D:\1 UNICA\Projet\ba\front-backup\backend\target\credit-scoring-backend-1.0.0.jar started by driss in D:\1 UNICA\Projet\ba\front-backup)
+2025-12-24 20:08:41 [main] DEBUG c.e.c.CreditScoringApplication - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-12-24 20:08:41 [main] INFO  c.e.c.CreditScoringApplication - No active profile set, falling back to 1 default profile: "default"
+2025-12-24 20:08:44 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-24 20:08:45 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 394 ms. Found 4 JPA repository interfaces.
+2025-12-24 20:08:48 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8081 (http)
+2025-12-24 20:08:48 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-12-24 20:08:48 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-12-24 20:08:48 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-12-24 20:08:48 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 7199 ms
+2025-12-24 20:08:50 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-24 20:08:50 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-12-24 20:08:50 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-12-24 20:08:51 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-24 20:08:51 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-12-24 20:08:53 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@247dcbba
+2025-12-24 20:08:53 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-12-24 20:08:53 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-12-24 20:08:55 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-24 20:08:58 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-24 20:08:59 [main] DEBUG c.e.c.s.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2025-12-24 20:08:59 [main] DEBUG o.s.w.f.ServerHttpObservationFilter - Filter 'webMvcObservationFilter' configured for use
+2025-12-24 20:09:00 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-12-24 20:09:02 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.ApplicationController:
+	{POST [/api/applications]}: submitApplication(CreditApplicationDTO,Authentication)
+	{GET [/api/applications/{applicationId}]}: getApplication(Long)
+	{GET [/api/applications/user/{userId}]}: getUserApplications(Long)
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.AuthController:
+	{POST [/auth/register]}: register(AuthRequest)
+	{POST [/auth/login]}: login(AuthRequest)
+	{POST [/auth/verify-cin]}: verifyCin(Long,String,MultipartFile)
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.DocumentController:
+	{POST [/api/documents/upload]}: uploadDocument(MultipartFile,DocumentType,Long,Authentication)
+	{DELETE [/api/documents/{documentId}]}: deleteDocument(Long)
+	{GET [/api/documents/user/{userId}]}: getUserDocuments(Long)
+	{GET [/api/documents/{documentId}]}: downloadDocument(Long)
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.FileUploadController:
+	{POST [/api/files/upload]}: uploadFile(MultipartFile,String)
+	{GET [/api/files/url/{category}/{filename}]}: getFileUrl(String,String)
+	{POST [/api/files/upload-cin]}: uploadCinPhoto(MultipartFile,Long,String)
+	{GET [/api/files/cin/{filename:.+}]}: downloadCinPhoto(String)
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.MLController:
+	{POST [/api/ml/explain]}: getShapExplanation(CreditApplicationDTO)
+	{GET [/api/ml/health]}: checkHealth()
+	{GET [/api/ml/fairness]}: getFairnessMetrics(String)
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.UserController:
+	{GET [/api/users/me]}: getCurrentUser()
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.b.a.w.s.e.BasicErrorController:
+	{ [/error]}: error(HttpServletRequest)
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.a.OpenApiWebMvcResource:
+	{GET [/api-docs], produces [application/json]}: openapiJson(HttpServletRequest,String,Locale)
+	{GET [/api-docs.yaml], produces [application/vnd.oai.openapi]}: openapiYaml(HttpServletRequest,String,Locale)
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerWelcomeWebMvc:
+	{GET [/swagger-ui.html]}: redirectToUi(HttpServletRequest)
+2025-12-24 20:09:03 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerConfigResource:
+	{GET [/api-docs/swagger-config], produces [application/json]}: openapiJson(HttpServletRequest)
+2025-12-24 20:09:03 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 24 mappings in 'requestMappingHandlerMapping'
+2025-12-24 20:09:03 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-12-24 20:09:03 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-12-24 20:09:04 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4424285, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@65a022e6, org.springframework.security.web.context.SecurityContextHolderFilter@5fcaaf92, org.springframework.security.web.header.HeaderWriterFilter@33bc7565, org.springframework.web.filter.CorsFilter@3d731475, org.springframework.security.web.authentication.logout.LogoutFilter@3f64a088, com.ethicalai.creditscoring.security.JwtAuthenticationFilter@18d963be, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6685d5e4, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2004e611, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7bad8257, org.springframework.security.web.session.SessionManagementFilter@69160a0c, org.springframework.security.web.access.ExceptionTranslationFilter@697ea6b2, org.springframework.security.web.access.intercept.AuthorizationFilter@2cca15d8]
+2025-12-24 20:09:04 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-12-24 20:09:04 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-12-24 20:09:06 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8081 (http) with context path ''
+2025-12-24 20:09:06 [main] INFO  c.e.c.CreditScoringApplication - Started CreditScoringApplication in 26.365 seconds (process running for 27.762)
+2025-12-24 20:09:20 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-24 20:09:20 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-12-24 20:09:20 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-12-24 20:10:15 [main] INFO  c.e.c.CreditScoringApplication - Starting CreditScoringApplication v1.0.0 using Java 21.0.8 with PID 26592 (D:\1 UNICA\Projet\ba\front-backup\backend\target\credit-scoring-backend-1.0.0.jar started by driss in D:\1 UNICA\Projet\ba\front-backup)
+2025-12-24 20:10:15 [main] DEBUG c.e.c.CreditScoringApplication - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-12-24 20:10:15 [main] INFO  c.e.c.CreditScoringApplication - No active profile set, falling back to 1 default profile: "default"
+2025-12-24 20:10:19 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-24 20:10:19 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 377 ms. Found 4 JPA repository interfaces.
+2025-12-24 20:10:23 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8081 (http)
+2025-12-24 20:10:23 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-12-24 20:10:23 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-12-24 20:10:23 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-12-24 20:10:23 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 7865 ms
+2025-12-24 20:10:25 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-24 20:10:25 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-12-24 20:10:25 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-12-24 20:10:27 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-24 20:10:27 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-12-24 20:10:29 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6e23ba17
+2025-12-24 20:10:29 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-12-24 20:10:29 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-12-24 20:10:33 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-24 20:10:35 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-24 20:10:37 [main] DEBUG c.e.c.s.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2025-12-24 20:10:37 [main] DEBUG o.s.w.f.ServerHttpObservationFilter - Filter 'webMvcObservationFilter' configured for use
+2025-12-24 20:10:37 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-12-24 20:10:40 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.ApplicationController:
+	{GET [/api/applications/user/{userId}]}: getUserApplications(Long)
+	{GET [/api/applications/{applicationId}]}: getApplication(Long)
+	{POST [/api/applications]}: submitApplication(CreditApplicationDTO,Authentication)
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.AuthController:
+	{POST [/auth/register]}: register(AuthRequest)
+	{POST [/auth/login]}: login(AuthRequest)
+	{POST [/auth/verify-cin]}: verifyCin(Long,String,MultipartFile)
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.DocumentController:
+	{POST [/api/documents/upload]}: uploadDocument(MultipartFile,DocumentType,Long,Authentication)
+	{GET [/api/documents/{documentId}]}: downloadDocument(Long)
+	{GET [/api/documents/user/{userId}]}: getUserDocuments(Long)
+	{DELETE [/api/documents/{documentId}]}: deleteDocument(Long)
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.FileUploadController:
+	{GET [/api/files/url/{category}/{filename}]}: getFileUrl(String,String)
+	{POST [/api/files/upload]}: uploadFile(MultipartFile,String)
+	{GET [/api/files/cin/{filename:.+}]}: downloadCinPhoto(String)
+	{POST [/api/files/upload-cin]}: uploadCinPhoto(MultipartFile,Long,String)
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.MLController:
+	{POST [/api/ml/explain]}: getShapExplanation(CreditApplicationDTO)
+	{GET [/api/ml/health]}: checkHealth()
+	{GET [/api/ml/fairness]}: getFairnessMetrics(String)
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.UserController:
+	{GET [/api/users/me]}: getCurrentUser()
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.b.a.w.s.e.BasicErrorController:
+	{ [/error]}: error(HttpServletRequest)
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.a.OpenApiWebMvcResource:
+	{GET [/api-docs.yaml], produces [application/vnd.oai.openapi]}: openapiYaml(HttpServletRequest,String,Locale)
+	{GET [/api-docs], produces [application/json]}: openapiJson(HttpServletRequest,String,Locale)
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerWelcomeWebMvc:
+	{GET [/swagger-ui.html]}: redirectToUi(HttpServletRequest)
+2025-12-24 20:10:41 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerConfigResource:
+	{GET [/api-docs/swagger-config], produces [application/json]}: openapiJson(HttpServletRequest)
+2025-12-24 20:10:41 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 24 mappings in 'requestMappingHandlerMapping'
+2025-12-24 20:10:42 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-12-24 20:10:42 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-12-24 20:10:42 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@3f64a088, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@557d9532, org.springframework.security.web.context.SecurityContextHolderFilter@7ab7a4eb, org.springframework.security.web.header.HeaderWriterFilter@37353030, org.springframework.web.filter.CorsFilter@2bc3ab4d, org.springframework.security.web.authentication.logout.LogoutFilter@2cfc81f8, com.ethicalai.creditscoring.security.JwtAuthenticationFilter@5a0c0680, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@33bc7565, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@69f564ab, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@18a01254, org.springframework.security.web.session.SessionManagementFilter@52e67513, org.springframework.security.web.access.ExceptionTranslationFilter@3d4d2e29, org.springframework.security.web.access.intercept.AuthorizationFilter@303ea430]
+2025-12-24 20:10:43 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-12-24 20:10:43 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-12-24 20:10:44 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8081 (http) with context path ''
+2025-12-24 20:10:44 [main] INFO  c.e.c.CreditScoringApplication - Started CreditScoringApplication in 30.56 seconds (process running for 31.659)
+2025-12-24 20:10:57 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-24 20:10:57 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-12-24 20:10:57 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-12-24 20:11:38 [main] INFO  c.e.c.CreditScoringApplication - Starting CreditScoringApplication v1.0.0 using Java 21.0.8 with PID 20428 (D:\1 UNICA\Projet\ba\front-backup\backend\target\credit-scoring-backend-1.0.0.jar started by driss in D:\1 UNICA\Projet\ba\front-backup)
+2025-12-24 20:11:38 [main] DEBUG c.e.c.CreditScoringApplication - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-12-24 20:11:38 [main] INFO  c.e.c.CreditScoringApplication - No active profile set, falling back to 1 default profile: "default"
+2025-12-24 20:11:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-24 20:11:42 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 351 ms. Found 4 JPA repository interfaces.
+2025-12-24 20:11:45 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8081 (http)
+2025-12-24 20:11:45 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-12-24 20:11:45 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-12-24 20:11:45 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-12-24 20:11:45 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 6381 ms
+2025-12-24 20:11:46 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-24 20:11:46 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-12-24 20:11:46 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-12-24 20:11:47 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-24 20:11:47 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-12-24 20:11:49 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@2651e783
+2025-12-24 20:11:49 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-12-24 20:11:49 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-12-24 20:11:52 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-24 20:11:53 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-24 20:11:55 [main] DEBUG c.e.c.s.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2025-12-24 20:11:55 [main] DEBUG o.s.w.f.ServerHttpObservationFilter - Filter 'webMvcObservationFilter' configured for use
+2025-12-24 20:11:55 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-12-24 20:11:58 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.ApplicationController:
+	{GET [/api/applications/{applicationId}]}: getApplication(Long)
+	{POST [/api/applications]}: submitApplication(CreditApplicationDTO,Authentication)
+	{GET [/api/applications/user/{userId}]}: getUserApplications(Long)
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.AuthController:
+	{POST [/auth/register]}: register(AuthRequest)
+	{POST [/auth/login]}: login(AuthRequest)
+	{POST [/auth/verify-cin]}: verifyCin(Long,String,MultipartFile)
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.DocumentController:
+	{POST [/api/documents/upload]}: uploadDocument(MultipartFile,DocumentType,Long,Authentication)
+	{GET [/api/documents/user/{userId}]}: getUserDocuments(Long)
+	{DELETE [/api/documents/{documentId}]}: deleteDocument(Long)
+	{GET [/api/documents/{documentId}]}: downloadDocument(Long)
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.FileUploadController:
+	{POST [/api/files/upload-cin]}: uploadCinPhoto(MultipartFile,Long,String)
+	{GET [/api/files/cin/{filename:.+}]}: downloadCinPhoto(String)
+	{POST [/api/files/upload]}: uploadFile(MultipartFile,String)
+	{GET [/api/files/url/{category}/{filename}]}: getFileUrl(String,String)
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.MLController:
+	{POST [/api/ml/explain]}: getShapExplanation(CreditApplicationDTO)
+	{GET [/api/ml/health]}: checkHealth()
+	{GET [/api/ml/fairness]}: getFairnessMetrics(String)
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.UserController:
+	{GET [/api/users/me]}: getCurrentUser()
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.b.a.w.s.e.BasicErrorController:
+	{ [/error]}: error(HttpServletRequest)
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.a.OpenApiWebMvcResource:
+	{GET [/api-docs], produces [application/json]}: openapiJson(HttpServletRequest,String,Locale)
+	{GET [/api-docs.yaml], produces [application/vnd.oai.openapi]}: openapiYaml(HttpServletRequest,String,Locale)
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerWelcomeWebMvc:
+	{GET [/swagger-ui.html]}: redirectToUi(HttpServletRequest)
+2025-12-24 20:11:59 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerConfigResource:
+	{GET [/api-docs/swagger-config], produces [application/json]}: openapiJson(HttpServletRequest)
+2025-12-24 20:11:59 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 24 mappings in 'requestMappingHandlerMapping'
+2025-12-24 20:11:59 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-12-24 20:12:01 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-12-24 20:12:01 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@73f3bf4f, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@176b8493, org.springframework.security.web.context.SecurityContextHolderFilter@196e494d, org.springframework.security.web.header.HeaderWriterFilter@156b3428, org.springframework.web.filter.CorsFilter@152705d0, org.springframework.security.web.authentication.logout.LogoutFilter@6b13d558, com.ethicalai.creditscoring.security.JwtAuthenticationFilter@7d776105, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@131c4ffe, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4da584e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7da43bda, org.springframework.security.web.session.SessionManagementFilter@46a6368f, org.springframework.security.web.access.ExceptionTranslationFilter@2429a26f, org.springframework.security.web.access.intercept.AuthorizationFilter@eefc1bf]
+2025-12-24 20:12:02 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-12-24 20:12:02 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-12-24 20:12:03 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8081 (http) with context path ''
+2025-12-24 20:12:03 [main] INFO  c.e.c.CreditScoringApplication - Started CreditScoringApplication in 25.846 seconds (process running for 27.425)
+2025-12-24 20:12:08 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-24 20:12:08 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-12-24 20:12:08 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-12-24 20:14:11 [main] INFO  c.e.c.CreditScoringApplication - Starting CreditScoringApplication v1.0.0 using Java 21.0.8 with PID 24968 (D:\1 UNICA\Projet\ba\front-backup\backend\target\credit-scoring-backend-1.0.0.jar started by driss in D:\1 UNICA\Projet\ba\front-backup)
+2025-12-24 20:14:11 [main] DEBUG c.e.c.CreditScoringApplication - Running with Spring Boot v3.2.0, Spring v6.1.1
+2025-12-24 20:14:11 [main] INFO  c.e.c.CreditScoringApplication - No active profile set, falling back to 1 default profile: "default"
+2025-12-24 20:14:15 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-24 20:14:15 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 334 ms. Found 4 JPA repository interfaces.
+2025-12-24 20:14:18 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8081 (http)
+2025-12-24 20:14:18 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-12-24 20:14:18 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-12-24 20:14:18 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-12-24 20:14:18 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 6705 ms
+2025-12-24 20:14:19 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-24 20:14:20 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-12-24 20:14:20 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-12-24 20:14:21 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-24 20:14:21 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-12-24 20:14:23 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@2078bf0a
+2025-12-24 20:14:23 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-12-24 20:14:23 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-12-24 20:14:26 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-24 20:14:27 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-24 20:14:29 [main] DEBUG c.e.c.s.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2025-12-24 20:14:29 [main] DEBUG o.s.w.f.ServerHttpObservationFilter - Filter 'webMvcObservationFilter' configured for use
+2025-12-24 20:14:29 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-12-24 20:14:32 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.ApplicationController:
+	{GET [/api/applications/user/{userId}]}: getUserApplications(Long)
+	{GET [/api/applications/{applicationId}]}: getApplication(Long)
+	{POST [/api/applications]}: submitApplication(CreditApplicationDTO,Authentication)
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.AuthController:
+	{POST [/auth/register]}: register(AuthRequest)
+	{POST [/auth/login]}: login(AuthRequest)
+	{POST [/auth/verify-cin]}: verifyCin(Long,String,MultipartFile)
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.DocumentController:
+	{POST [/api/documents/upload]}: uploadDocument(MultipartFile,DocumentType,Long,Authentication)
+	{GET [/api/documents/user/{userId}]}: getUserDocuments(Long)
+	{GET [/api/documents/{documentId}]}: downloadDocument(Long)
+	{DELETE [/api/documents/{documentId}]}: deleteDocument(Long)
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.FileUploadController:
+	{POST [/api/files/upload]}: uploadFile(MultipartFile,String)
+	{GET [/api/files/url/{category}/{filename}]}: getFileUrl(String,String)
+	{GET [/api/files/cin/{filename:.+}]}: downloadCinPhoto(String)
+	{POST [/api/files/upload-cin]}: uploadCinPhoto(MultipartFile,Long,String)
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.MLController:
+	{GET [/api/ml/fairness]}: getFairnessMetrics(String)
+	{GET [/api/ml/health]}: checkHealth()
+	{POST [/api/ml/explain]}: getShapExplanation(CreditApplicationDTO)
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	c.e.c.c.UserController:
+	{GET [/api/users/me]}: getCurrentUser()
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.b.a.w.s.e.BasicErrorController:
+	{ [/error]}: error(HttpServletRequest)
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.a.OpenApiWebMvcResource:
+	{GET [/api-docs.yaml], produces [application/vnd.oai.openapi]}: openapiYaml(HttpServletRequest,String,Locale)
+	{GET [/api-docs], produces [application/json]}: openapiJson(HttpServletRequest,String,Locale)
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerWelcomeWebMvc:
+	{GET [/swagger-ui.html]}: redirectToUi(HttpServletRequest)
+2025-12-24 20:14:33 [main] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - 
+	o.s.w.u.SwaggerConfigResource:
+	{GET [/api-docs/swagger-config], produces [application/json]}: openapiJson(HttpServletRequest)
+2025-12-24 20:14:33 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 24 mappings in 'requestMappingHandlerMapping'
+2025-12-24 20:14:33 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-12-24 20:14:34 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-12-24 20:14:34 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@64079186, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6314b195, org.springframework.security.web.context.SecurityContextHolderFilter@50630ff7, org.springframework.security.web.header.HeaderWriterFilter@1e7544bc, org.springframework.web.filter.CorsFilter@4424285, org.springframework.security.web.authentication.logout.LogoutFilter@74e14434, com.ethicalai.creditscoring.security.JwtAuthenticationFilter@74832504, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@b4010be, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4733c7f0, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@65a022e6, org.springframework.security.web.session.SessionManagementFilter@16914a63, org.springframework.security.web.access.ExceptionTranslationFilter@52e67513, org.springframework.security.web.access.intercept.AuthorizationFilter@255d68d5]
+2025-12-24 20:14:34 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-12-24 20:14:34 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-12-24 20:14:36 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8081 (http) with context path ''
+2025-12-24 20:14:36 [main] INFO  c.e.c.CreditScoringApplication - Started CreditScoringApplication in 25.935 seconds (process running for 27.658)
+2025-12-24 20:16:34 [http-nio-8081-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-24 20:16:34 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-12-24 20:16:34 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
+2025-12-24 20:16:34 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected AcceptHeaderLocaleResolver
+2025-12-24 20:16:34 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected FixedThemeResolver
+2025-12-24 20:16:34 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@1ca0546a
+2025-12-24 20:16:34 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@96b00fb
+2025-12-24 20:16:34 [http-nio-8081-exec-1] DEBUG o.s.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-12-24 20:16:34 [http-nio-8081-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 6 ms
+2025-12-24 20:16:34 [http-nio-8081-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-12-24 20:16:34 [http-nio-8081-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing POST /auth/login
+2025-12-24 20:16:34 [http-nio-8081-exec-2] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-12-24 20:16:34 [http-nio-8081-exec-2] WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/auth/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2025-12-24 20:16:34 [http-nio-8081-exec-2] DEBUG o.s.security.web.FilterChainProxy - Secured POST /auth/login
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ INCOMING REQUEST
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: POST /auth/login
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ Remote Address: 0:0:0:0:0:0:0:1
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/json
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ Headers:
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   host: localhost:8081
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   connection: keep-alive
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   content-length: 53
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua-platform: "Windows"
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   accept: application/json
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua: "Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   content-type: application/json
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua-mobile: ?0
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   origin: http://localhost:62804
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-site: same-site
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-mode: cors
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-dest: empty
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   referer: http://localhost:62804/
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   accept-encoding: gzip, deflate, br, zstd
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║   accept-language: en-GB,en-US;q=0.9,en;q=0.8
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:16:34 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - POST "/auth/login", parameters={}
+2025-12-24 20:16:34 [http-nio-8081-exec-2] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.ethicalai.creditscoring.controller.AuthController#login(AuthRequest)
+2025-12-24 20:16:34 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json;charset=UTF-8" to [AuthRequest(email=drissrk@gmail.com, username=null, password=Cff9f575f1)]
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.controller.AuthController - 🔵 LOGIN REQUEST - Email: drissrk@gmail.com
+2025-12-24 20:16:34 [http-nio-8081-exec-2] INFO  c.e.c.service.AuthService - 🔹 [AuthService] Starting login process for email: drissrk@gmail.com
+2025-12-24 20:16:34 [http-nio-8081-exec-2] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Authenticating user credentials...
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.cin,
+        u1_0.cin_photo,
+        u1_0.country_code,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.identity_verified,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG o.s.s.a.d.DaoAuthenticationProvider - Authenticated user
+2025-12-24 20:16:35 [http-nio-8081-exec-2] INFO  c.e.c.service.AuthService - ✅ [AuthService] User authenticated successfully: drissrk@gmail.com
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Fetching user from database...
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.cin,
+        u1_0.cin_photo,
+        u1_0.country_code,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.identity_verified,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG c.e.c.service.AuthService - ✅ [AuthService] User found - ID: 2, Username: driss
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Updating last login timestamp...
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Generating JWT token...
+2025-12-24 20:16:35 [http-nio-8081-exec-2] INFO  c.e.c.service.AuthService - ✅ [AuthService] JWT token generated for user: drissrk@gmail.com
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Converting user to DTO...
+2025-12-24 20:16:35 [http-nio-8081-exec-2] INFO  c.e.c.service.AuthService - ✅ [AuthService] Login completed successfully for: drissrk@gmail.com
+2025-12-24 20:16:35 [http-nio-8081-exec-2] DEBUG org.hibernate.SQL - 
+    update
+        users 
+    set
+        cin=?,
+        cin_photo=?,
+        country_code=?,
+        email=?,
+        email_verified=?,
+        identity_verified=?,
+        is_active=?,
+        last_login=?,
+        password=?,
+        phone=?,
+        role=?,
+        updated_at=?,
+        username=? 
+    where
+        id=?
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.controller.AuthController - ✅ LOGIN SUCCESS - User ID: 2, Email: drissrk@gmail.com
+2025-12-24 20:16:36 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json] and supported [application/json, application/*+json]
+2025-12-24 20:16:36 [http-nio-8081-exec-2] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [UserDTO(id=2, email=drissrk@gmail.com, username=driss, identityVerified=false, cin=null, cinPhoto=nu (truncated)...]
+2025-12-24 20:16:36 [http-nio-8081-exec-2] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ OUTGOING RESPONSE
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: POST /auth/login
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ Status: 200
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ Duration: 1732ms
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/json
+2025-12-24 20:16:36 [http-nio-8081-exec-2] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:16:36 [http-nio-8081-exec-3] DEBUG o.s.security.web.FilterChainProxy - Securing OPTIONS /api/users/me
+2025-12-24 20:16:36 [http-nio-8081-exec-4] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/users/me
+2025-12-24 20:16:36 [http-nio-8081-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.cin,
+        u1_0.cin_photo,
+        u1_0.country_code,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.identity_verified,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-12-24 20:16:36 [http-nio-8081-exec-4] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/users/me
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ INCOMING REQUEST
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: GET /api/users/me
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ Remote Address: 0:0:0:0:0:0:0:1
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/json
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ Headers:
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   host: localhost:8081
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   connection: keep-alive
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua-platform: "Windows"
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   authorization: [HIDDEN]
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   accept: application/json
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua: "Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   content-type: application/json
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua-mobile: ?0
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   origin: http://localhost:62804
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-site: same-site
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-mode: cors
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-dest: empty
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   referer: http://localhost:62804/
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   accept-encoding: gzip, deflate, br, zstd
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║   accept-language: en-GB,en-US;q=0.9,en;q=0.8
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:16:36 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/users/me", parameters={}
+2025-12-24 20:16:36 [http-nio-8081-exec-4] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.ethicalai.creditscoring.controller.UserController#getCurrentUser()
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.controller.UserController - 🔵 GET CURRENT USER REQUEST
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.controller.UserController - 🔹 Fetching user data for email: drissrk@gmail.com
+2025-12-24 20:16:36 [http-nio-8081-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.cin,
+        u1_0.cin_photo,
+        u1_0.country_code,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.identity_verified,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.controller.UserController - ✅ User found - ID: 2, Username: driss, Email: drissrk@gmail.com
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.controller.UserController - ✅ GET CURRENT USER SUCCESS - User ID: 2, Verified: false
+2025-12-24 20:16:36 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json] and supported [application/json, application/*+json]
+2025-12-24 20:16:36 [http-nio-8081-exec-4] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [ApiResponse(success=true, message=User profile retrieved, data=UserDTO(id=2, email=drissrk@gmail.com (truncated)...]
+2025-12-24 20:16:36 [http-nio-8081-exec-4] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ OUTGOING RESPONSE
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: GET /api/users/me
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ Status: 200
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ Duration: 92ms
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/json
+2025-12-24 20:16:36 [http-nio-8081-exec-4] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:21:15 [http-nio-8081-exec-6] DEBUG o.s.security.web.FilterChainProxy - Securing GET /actuator/health
+2025-12-24 20:21:15 [http-nio-8081-exec-6] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-12-24 20:21:15 [http-nio-8081-exec-6] DEBUG o.s.security.web.FilterChainProxy - Secured GET /actuator/health
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ INCOMING REQUEST
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: GET /actuator/health
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ Remote Address: 0:0:0:0:0:0:0:1
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: null
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ Headers:
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║   user-agent: Mozilla/5.0 (Windows NT; Windows NT 10.0; en-GB) WindowsPowerShell/5.1.26100.7462
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║   host: localhost:8081
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║   connection: Keep-Alive
+2025-12-24 20:21:15 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:21:15 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - GET "/actuator/health", parameters={}
+2025-12-24 20:21:15 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/octet-stream" to []
+2025-12-24 20:21:16 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/vnd.spring-boot.actuator.v3+json', given [*/*] and supported [application/vnd.spring-boot.actuator.v3+json, application/vnd.spring-boot.actuator.v2+json, application/json]
+2025-12-24 20:21:16 [http-nio-8081-exec-6] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [org.springframework.boot.actuate.health.SystemHealth@48773e4a]
+2025-12-24 20:21:16 [http-nio-8081-exec-6] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-12-24 20:21:16 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:21:16 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ OUTGOING RESPONSE
+2025-12-24 20:21:16 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:21:16 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: GET /actuator/health
+2025-12-24 20:21:16 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ Status: 200
+2025-12-24 20:21:16 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ Duration: 521ms
+2025-12-24 20:21:16 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/vnd.spring-boot.actuator.v3+json
+2025-12-24 20:21:16 [http-nio-8081-exec-6] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:23:04 [http-nio-8081-exec-8] DEBUG o.s.security.web.FilterChainProxy - Securing POST /auth/login
+2025-12-24 20:23:04 [http-nio-8081-exec-8] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-12-24 20:23:04 [http-nio-8081-exec-8] DEBUG o.s.security.web.FilterChainProxy - Secured POST /auth/login
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ INCOMING REQUEST
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: POST /auth/login
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ Remote Address: 0:0:0:0:0:0:0:1
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/json
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ Headers:
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   host: localhost:8081
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   connection: keep-alive
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   content-length: 53
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua-platform: "Windows"
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   accept: application/json
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua: "Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   content-type: application/json
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua-mobile: ?0
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   origin: http://localhost:62804
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-site: same-site
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-mode: cors
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-dest: empty
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   referer: http://localhost:62804/
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   accept-encoding: gzip, deflate, br, zstd
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║   accept-language: en-GB,en-US;q=0.9,en;q=0.8
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:23:04 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - POST "/auth/login", parameters={}
+2025-12-24 20:23:04 [http-nio-8081-exec-8] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.ethicalai.creditscoring.controller.AuthController#login(AuthRequest)
+2025-12-24 20:23:04 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Read "application/json;charset=UTF-8" to [AuthRequest(email=drissrk@gmail.com, username=null, password=Cff9f575f1)]
+2025-12-24 20:23:04 [http-nio-8081-exec-8] INFO  c.e.c.controller.AuthController - 🔵 LOGIN REQUEST - Email: drissrk@gmail.com
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.service.AuthService - 🔹 [AuthService] Starting login process for email: drissrk@gmail.com
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Authenticating user credentials...
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.cin,
+        u1_0.cin_photo,
+        u1_0.country_code,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.identity_verified,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG o.s.s.a.d.DaoAuthenticationProvider - Authenticated user
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.service.AuthService - ✅ [AuthService] User authenticated successfully: drissrk@gmail.com
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Fetching user from database...
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.cin,
+        u1_0.cin_photo,
+        u1_0.country_code,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.identity_verified,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG c.e.c.service.AuthService - ✅ [AuthService] User found - ID: 2, Username: driss
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Updating last login timestamp...
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Generating JWT token...
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.service.AuthService - ✅ [AuthService] JWT token generated for user: drissrk@gmail.com
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG c.e.c.service.AuthService - 🔹 [AuthService] Converting user to DTO...
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.service.AuthService - ✅ [AuthService] Login completed successfully for: drissrk@gmail.com
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG org.hibernate.SQL - 
+    update
+        users 
+    set
+        cin=?,
+        cin_photo=?,
+        country_code=?,
+        email=?,
+        email_verified=?,
+        identity_verified=?,
+        is_active=?,
+        last_login=?,
+        password=?,
+        phone=?,
+        role=?,
+        updated_at=?,
+        username=? 
+    where
+        id=?
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.controller.AuthController - ✅ LOGIN SUCCESS - User ID: 2, Email: drissrk@gmail.com
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json] and supported [application/json, application/*+json]
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [UserDTO(id=2, email=drissrk@gmail.com, username=driss, identityVerified=false, cin=null, cinPhoto=nu (truncated)...]
+2025-12-24 20:23:05 [http-nio-8081-exec-8] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ OUTGOING RESPONSE
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: POST /auth/login
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ Status: 200
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ Duration: 459ms
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/json
+2025-12-24 20:23:05 [http-nio-8081-exec-8] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:23:05 [http-nio-8081-exec-9] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/users/me
+2025-12-24 20:23:05 [http-nio-8081-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.cin,
+        u1_0.cin_photo,
+        u1_0.country_code,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.identity_verified,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-12-24 20:23:05 [http-nio-8081-exec-9] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/users/me
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ INCOMING REQUEST
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: GET /api/users/me
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ Remote Address: 0:0:0:0:0:0:0:1
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/json
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ Headers:
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   host: localhost:8081
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   connection: keep-alive
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua-platform: "Windows"
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   authorization: [HIDDEN]
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   accept: application/json
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua: "Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   content-type: application/json
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-ch-ua-mobile: ?0
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   origin: http://localhost:62804
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-site: same-site
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-mode: cors
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   sec-fetch-dest: empty
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   referer: http://localhost:62804/
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   accept-encoding: gzip, deflate, br, zstd
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║   accept-language: en-GB,en-US;q=0.9,en;q=0.8
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════
+2025-12-24 20:23:05 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - GET "/api/users/me", parameters={}
+2025-12-24 20:23:05 [http-nio-8081-exec-9] TRACE o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.ethicalai.creditscoring.controller.UserController#getCurrentUser()
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.controller.UserController - 🔵 GET CURRENT USER REQUEST
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.controller.UserController - 🔹 Fetching user data for email: drissrk@gmail.com
+2025-12-24 20:23:05 [http-nio-8081-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.cin,
+        u1_0.cin_photo,
+        u1_0.country_code,
+        u1_0.created_at,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.identity_verified,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.password,
+        u1_0.phone,
+        u1_0.role,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.controller.UserController - ✅ User found - ID: 2, Username: driss, Email: drissrk@gmail.com
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.controller.UserController - ✅ GET CURRENT USER SUCCESS - User ID: 2, Verified: false
+2025-12-24 20:23:05 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Using 'application/json', given [application/json] and supported [application/json, application/*+json]
+2025-12-24 20:23:05 [http-nio-8081-exec-9] DEBUG o.s.w.s.m.m.a.HttpEntityMethodProcessor - Writing [ApiResponse(success=true, message=User profile retrieved, data=UserDTO(id=2, email=drissrk@gmail.com (truncated)...]
+2025-12-24 20:23:05 [http-nio-8081-exec-9] DEBUG o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ╔════════════════════════════════════════════════════════════════
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ OUTGOING RESPONSE
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ╠════════════════════════════════════════════════════════════════
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ Method: GET /api/users/me
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ Status: 200
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ Duration: 80ms
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ║ Content-Type: application/json
+2025-12-24 20:23:05 [http-nio-8081-exec-9] INFO  c.e.c.config.RequestLoggingFilter - ╚════════════════════════════════════════════════════════════════

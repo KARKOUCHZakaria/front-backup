@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,8 @@ import 'package:file_picker/file_picker.dart';
 import '../theme/app_theme.dart';
 import '../widgets/responsive_builder.dart';
 import '../widgets/app_drawer.dart';
+import '../providers.dart';
+import '../providers/auth_provider.dart';
 
 /// Document types required for credit application
 enum DocumentType {
@@ -24,6 +28,8 @@ class DocumentStatus {
   final String description;
   final String fileType;
   final File? file;
+  final Uint8List? fileBytes; // For web platform
+  final String? fileName; // For web platform
   final bool isOptional;
   final bool isForSelfEmployed;
 
@@ -33,21 +39,32 @@ class DocumentStatus {
     required this.description,
     required this.fileType,
     this.file,
+    this.fileBytes,
+    this.fileName,
     this.isOptional = false,
     this.isForSelfEmployed = false,
   });
 
-  DocumentStatus copyWith({File? file}) {
+  DocumentStatus copyWith({
+    File? file,
+    Uint8List? fileBytes,
+    String? fileName,
+  }) {
     return DocumentStatus(
       type: type,
       title: title,
       description: description,
       fileType: fileType,
       file: file ?? this.file,
+      fileBytes: fileBytes ?? this.fileBytes,
+      fileName: fileName ?? this.fileName,
       isOptional: isOptional,
       isForSelfEmployed: isForSelfEmployed,
     );
   }
+
+  // Check if file is uploaded (either as File or bytes)
+  bool get isUploaded => file != null || fileBytes != null;
 }
 
 /// Document Upload Screen - Complete Docs after authentication
@@ -55,7 +72,8 @@ class DocumentUploadScreen extends ConsumerStatefulWidget {
   const DocumentUploadScreen({super.key});
 
   @override
-  ConsumerState<DocumentUploadScreen> createState() => _DocumentUploadScreenState();
+  ConsumerState<DocumentUploadScreen> createState() =>
+      _DocumentUploadScreenState();
 }
 
 class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
@@ -134,20 +152,30 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
   Future<void> _pickFile(DocumentStatus doc, List<DocumentStatus> list) async {
     try {
       // Determine allowed extensions based on file type
-      final allowedExtensions = doc.fileType == 'PDF' ? ['pdf'] : ['xlsx'];
-      
+      List<String> allowedExtensions;
+      if (doc.fileType == 'PDF') {
+        allowedExtensions = ['pdf'];
+      } else if (doc.fileType == 'XLSX') {
+        allowedExtensions = ['xlsx'];
+      } else if (doc.fileType == 'JPG/PNG') {
+        allowedExtensions = ['jpg', 'jpeg', 'png'];
+      } else {
+        allowedExtensions = ['pdf'];
+      }
+
       // Pick file with type validation
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: allowedExtensions,
         allowMultiple: false,
+        withData: kIsWeb, // Load bytes on web
       );
 
-      if (result != null && result.files.single.path != null) {
-        final filePath = result.files.single.path!;
-        final fileName = result.files.single.name;
+      if (result != null && result.files.isNotEmpty) {
+        final pickedFile = result.files.first;
+        final fileName = pickedFile.name;
         final fileExtension = fileName.split('.').last.toLowerCase();
-        
+
         // Validate file extension
         if (!allowedExtensions.contains(fileExtension)) {
           if (mounted) {
@@ -160,13 +188,27 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
           }
           return;
         }
-        
+
         // Update the document with the selected file
         final index = list.indexOf(doc);
         setState(() {
-          list[index] = doc.copyWith(file: File(filePath));
+          if (kIsWeb) {
+            // On web, use bytes
+            list[index] = doc.copyWith(
+              fileBytes: pickedFile.bytes,
+              fileName: fileName,
+            );
+          } else {
+            // On mobile, use file path
+            if (pickedFile.path != null) {
+              list[index] = doc.copyWith(
+                file: File(pickedFile.path!),
+                fileName: fileName,
+              );
+            }
+          }
         });
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -192,30 +234,33 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
   bool _isStepComplete(int step) {
     switch (step) {
       case 0:
-        return _incomeDocuments.every((d) => d.file != null);
+        return _incomeDocuments.every((d) => d.isUploaded);
       case 1:
-        return _financialDocuments.every((d) => d.file != null);
+        return _financialDocuments.every((d) => d.isUploaded);
       case 2:
-        return _loanDocuments.every((d) => d.file != null);
+        return _loanDocuments.every((d) => d.isUploaded);
       case 3:
         if (!_isSelfEmployed) return true;
-        return _businessDocuments.every((d) => d.file != null);
+        return _businessDocuments.every((d) => d.isUploaded);
       default:
         return false;
     }
   }
 
   bool _canSubmit() {
-    // Check all required documents
-    final incomeComplete = _incomeDocuments.every((d) => d.file != null);
-    final financialComplete = _financialDocuments.every((d) => d.file != null);
-    final loanComplete = _loanDocuments.every((d) => d.file != null);
-    
+    // Check all required documents (CIN auto-approved)
+    final incomeComplete = _incomeDocuments.every((d) => d.isUploaded);
+    final financialComplete = _financialDocuments.every((d) => d.isUploaded);
+    final loanComplete = _loanDocuments.every((d) => d.isUploaded);
+
     if (_isSelfEmployed) {
-      final businessComplete = _businessDocuments.every((d) => d.file != null);
-      return incomeComplete && financialComplete && loanComplete && businessComplete;
+      final businessComplete = _businessDocuments.every((d) => d.isUploaded);
+      return incomeComplete &&
+          financialComplete &&
+          loanComplete &&
+          businessComplete;
     }
-    
+
     return incomeComplete && financialComplete && loanComplete;
   }
 
@@ -232,20 +277,91 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
 
     setState(() => _isSubmitting = true);
 
-    // Simulate upload delay
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      print('🔵 [Upload] Starting document submission');
 
-    setState(() => _isSubmitting = false);
+      // Get document service
+      final documentService = ref.read(documentServiceProvider);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✓ Documents uploaded successfully!'),
-          backgroundColor: Colors.green,
-        ),
+      // Collect all documents (CIN auto-approved, no need to upload)
+      final payslip1 = _incomeDocuments[0];
+      final payslip2 = _incomeDocuments[0]; // Using same for demo
+      final payslip3 = _incomeDocuments[0]; // Using same for demo
+      final taxDeclaration = _incomeDocuments[1];
+      final bankStatement = _financialDocuments[0];
+
+      // Validate all documents have bytes
+      if (payslip1.fileBytes == null ||
+          taxDeclaration.fileBytes == null ||
+          bankStatement.fileBytes == null) {
+        throw Exception('Some documents are missing');
+      }
+
+      // Call document service to upload and analyze
+      print('🔵 [Upload] Calling backend API');
+      final result = await documentService.uploadDocumentsAndAnalyze(
+        payslip1Bytes: payslip1.fileBytes!,
+        payslip1Name: payslip1.fileName ?? 'payslip1.pdf',
+        payslip2Bytes: payslip2.fileBytes!,
+        payslip2Name: payslip2.fileName ?? 'payslip2.pdf',
+        payslip3Bytes: payslip3.fileBytes!,
+        payslip3Name: payslip3.fileName ?? 'payslip3.pdf',
+        taxBytes: taxDeclaration.fileBytes!,
+        taxName: taxDeclaration.fileName ?? 'tax.pdf',
+        bankBytes: bankStatement.fileBytes!,
+        bankName: bankStatement.fileName ?? 'bank.pdf',
       );
-      // Navigate to user home dashboard
-      context.go('/user/home');
+
+      setState(() => _isSubmitting = false);
+
+      if (result.success && mounted) {
+        print('✅ [Upload] Success! Application ID: ${result.applicationId}');
+        print('   Credit Score: ${result.creditScore}');
+        print('   Decision: ${result.decision}');
+
+        // Invalidate applications provider to refetch data
+        ref.invalidate(userApplicationsProvider);
+
+        // Show success message with details
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('✓ Application submitted successfully!'),
+                SizedBox(height: 4),
+                Text('Credit Score: ${result.creditScore}'),
+                Text('Decision: ${result.decision}'),
+                if (result.documentScores?.averageScore != null)
+                  Text(
+                    'Document Score: ${result.documentScores!.averageScore!.toStringAsFixed(1)}%',
+                  ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 5),
+          ),
+        );
+
+        // Navigate to dashboard
+        context.go('/user/home');
+      } else {
+        throw Exception(result.message ?? 'Upload failed');
+      }
+    } catch (e) {
+      print('❌ [Upload] Error: $e');
+      setState(() => _isSubmitting = false);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Upload failed: $e'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -341,7 +457,10 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
           Expanded(
             child: Text(
               'Are you self-employed?',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           Switch(
@@ -387,9 +506,7 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
         ),
     ];
 
-    return Column(
-      children: steps,
-    );
+    return Column(children: steps);
   }
 
   Widget _buildStep({
@@ -410,8 +527,8 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
           color: isComplete
               ? AppColors.primaryCyan
               : isActive
-                  ? AppColors.primaryCyan.withOpacity(0.5)
-                  : Colors.white.withOpacity(0.1),
+              ? AppColors.primaryCyan.withOpacity(0.5)
+              : Colors.white.withOpacity(0.1),
           width: isComplete ? 2 : 1,
         ),
       ),
@@ -449,9 +566,11 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
           subtitle: Text(
             isComplete
                 ? 'All documents uploaded'
-                : '${documents.where((d) => d.file != null).length}/${documents.length} documents',
+                : '${documents.where((d) => d.isUploaded).length}/${documents.length} documents',
             style: TextStyle(
-              color: isComplete ? AppColors.primaryCyan : AppColors.textSecondary,
+              color: isComplete
+                  ? AppColors.primaryCyan
+                  : AppColors.textSecondary,
               fontSize: 12,
             ),
           ),
@@ -463,7 +582,9 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Column(
-                children: documents.map((doc) => _buildDocumentItem(doc, documents)).toList(),
+                children: documents
+                    .map((doc) => _buildDocumentItem(doc, documents))
+                    .toList(),
               ),
             ),
           ],
@@ -473,7 +594,7 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
   }
 
   Widget _buildDocumentItem(DocumentStatus doc, List<DocumentStatus> list) {
-    final isUploaded = doc.file != null;
+    final isUploaded = doc.isUploaded;
 
     return Container(
       margin: const EdgeInsets.only(top: 12),
@@ -526,7 +647,10 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.brightBlue.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(4),
@@ -564,7 +688,11 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(Icons.check_circle, color: AppColors.primaryCyan, size: 16),
+                      Icon(
+                        Icons.check_circle,
+                        color: AppColors.primaryCyan,
+                        size: 16,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'File uploaded',
@@ -585,15 +713,23 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
                   backgroundColor: isUploaded
                       ? AppColors.primaryCyan.withOpacity(0.2)
                       : AppColors.primaryCyan,
-                  foregroundColor: isUploaded ? AppColors.primaryCyan : Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  foregroundColor: isUploaded
+                      ? AppColors.primaryCyan
+                      : Colors.black,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: Text(
                   isUploaded ? 'Replace' : 'Upload',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ],
@@ -619,7 +755,9 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
             children: [
               Icon(
                 canSubmit ? Icons.check_circle : Icons.info_outline,
-                color: canSubmit ? AppColors.primaryCyan : AppColors.textSecondary,
+                color: canSubmit
+                    ? AppColors.primaryCyan
+                    : AppColors.textSecondary,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -640,7 +778,9 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _isSubmitting ? null : (canSubmit ? _submitDocuments : null),
+            onPressed: _isSubmitting
+                ? null
+                : (canSubmit ? _submitDocuments : null),
             style: ElevatedButton.styleFrom(
               backgroundColor: canSubmit ? AppColors.primaryCyan : Colors.grey,
               foregroundColor: Colors.black,
@@ -661,10 +801,7 @@ class _DocumentUploadScreenState extends ConsumerState<DocumentUploadScreen> {
                   )
                 : const Text(
                     'Submit Documents',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                   ),
           ),
         ),

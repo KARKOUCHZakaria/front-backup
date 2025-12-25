@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
+import '../providers/auth_provider.dart';
 
 /// Global app drawer/sidebar navigation
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final currentRoute = GoRouter.of(context).location;
-    
+    final user = ref.watch(currentUserProvider);
+
+    // Get user initials
+    String getInitials(String? name) {
+      if (name == null || name.isEmpty) return 'U';
+      final parts = name.trim().split(' ');
+      if (parts.length >= 2) {
+        return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+      }
+      return name[0].toUpperCase();
+    }
+
     return Drawer(
       backgroundColor: AppColors.darkBg,
       child: Column(
@@ -20,7 +33,10 @@ class AppDrawer extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.primaryCyan.withOpacity(0.2), Colors.transparent],
+                colors: [
+                  AppColors.primaryCyan.withOpacity(0.2),
+                  Colors.transparent,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -31,9 +47,9 @@ class AppDrawer extends StatelessWidget {
                 CircleAvatar(
                   radius: 32,
                   backgroundColor: AppColors.primaryCyan,
-                  child: const Text(
-                    'JD',
-                    style: TextStyle(
+                  child: Text(
+                    getInitials(user?.username),
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -41,16 +57,16 @@ class AppDrawer extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'John Doe',
-                  style: TextStyle(
+                Text(
+                  user?.username ?? 'User',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  'john.doe@email.com',
+                  user?.email ?? '',
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
@@ -59,7 +75,7 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Navigation Items
           Expanded(
             child: ListView(
@@ -118,7 +134,7 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Logout
           Container(
             padding: const EdgeInsets.all(16),
@@ -131,11 +147,17 @@ class AppDrawer extends StatelessWidget {
               leading: const Icon(Icons.logout, color: Colors.redAccent),
               title: const Text(
                 'Logout',
-                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/login');
+              onTap: () async {
+                await ref.read(authProvider.notifier).logout();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  context.go('/login');
+                }
               },
             ),
           ),
@@ -154,7 +176,9 @@ class AppDrawer extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive ? AppColors.primaryCyan.withOpacity(0.15) : Colors.transparent,
+        color: isActive
+            ? AppColors.primaryCyan.withOpacity(0.15)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(

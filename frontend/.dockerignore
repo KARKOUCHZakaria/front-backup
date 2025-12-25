@@ -1,0 +1,40 @@
+# Build outputs
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+test/
+screenshots/
+
+# Scripts
+scripts/
+
+# Platform specific (not needed for web)
+android/
+ios/
+linux/
+macos/
+windows/
+
+# Large files
+output.*

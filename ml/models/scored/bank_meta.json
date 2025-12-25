@@ -1,0 +1,20 @@
+{
+  "document_type": "bank",
+  "feature_columns": [
+    "period_months",
+    "opening_balance",
+    "closing_balance",
+    "average_balance",
+    "total_credits",
+    "total_debits",
+    "avg_monthly_income",
+    "avg_monthly_expenses",
+    "savings_rate",
+    "low_balance_incidents",
+    "has_bank_header",
+    "balances_match",
+    "regular_income"
+  ],
+  "trained_date": "2025-12-24 21:28:01",
+  "version": "1.0.0"
+}

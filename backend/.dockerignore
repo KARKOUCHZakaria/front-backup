@@ -1,0 +1,39 @@
+# Maven
+# Keep target/ for pre-built jar
+# target/
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+test-backend.bat
+test-backend.sh
+
+# Uploads (will be volume mounted)
+uploads/
+
+# Scripts
+setup.bat
+setup.sh

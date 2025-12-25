@@ -1,2 +1,0 @@
-main.tex:217:1: Error: `table' expected, found `lstlisting'. \end{lstlisting}  
-main.tex:199:7: Warning: No match found for `{'. \begin{tabu  

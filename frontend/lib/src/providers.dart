@@ -6,7 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // ML API imports
 import 'services/ml_api_service.dart';
 import 'services/ai_service.dart';
+import 'services/application_service.dart';
+import 'services/document_service.dart';
 import 'models/prediction_result.dart';
+import 'models/application.dart';
+// Import httpServiceProvider from auth_provider
+import 'providers/auth_provider.dart' show httpServiceProvider;
 
 /// Simple models for the demo app.
 class CreditApplication {
@@ -72,6 +77,12 @@ class ApplicationsNotifier extends StateNotifier<List<CreditApplication>> {
 /// Provider holding the latest score result
 final latestScoreProvider = StateProvider<ScoreResult?>((ref) => null);
 
+/// Document service provider
+final documentServiceProvider = Provider<DocumentService>((ref) {
+  final httpService = ref.watch(httpServiceProvider);
+  return DocumentService(httpService: httpService);
+});
+
 /// Theme mode provider to toggle light/dark from the UI
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.dark);
 
@@ -110,7 +121,11 @@ ScoreResult computeScoreFromForm(Map<String, dynamic> form) {
 }
 
 /// Helper to save a score result as a credit application
-void saveScoreToHistory(WidgetRef ref, ScoreResult score, {double loanAmount = 5000}) {
+void saveScoreToHistory(
+  WidgetRef ref,
+  ScoreResult score, {
+  double loanAmount = 5000,
+}) {
   final app = CreditApplication(
     id: 'app-${DateTime.now().millisecondsSinceEpoch}',
     amount: loanAmount,
@@ -147,7 +162,9 @@ final fairnessMetricsProvider = FutureProvider<FairnessMetrics?>((ref) async {
 });
 
 /// Provider for feature importance
-final featureImportanceProvider = FutureProvider<Map<String, double>>((ref) async {
+final featureImportanceProvider = FutureProvider<Map<String, double>>((
+  ref,
+) async {
   final mlApiService = ref.watch(mlApiServiceProvider);
   try {
     return await mlApiService.getFeatureImportance();
@@ -158,7 +175,36 @@ final featureImportanceProvider = FutureProvider<Map<String, double>>((ref) asyn
 });
 
 /// Provider for current prediction state
-final currentPredictionProvider = StateProvider<PredictionResult?>((ref) => null);
+final currentPredictionProvider = StateProvider<PredictionResult?>(
+  (ref) => null,
+);
 
 /// Provider to track if using mock data
 final useMockDataProvider = StateProvider<bool>((ref) => false);
+
+// ========== Application Service Providers ==========
+
+/// Provider for Application Service (singleton)
+final applicationServiceProvider = Provider<ApplicationService>((ref) {
+  // Import httpServiceProvider from auth_provider.dart
+  final httpService = ref.watch(httpServiceProvider);
+  return ApplicationService(httpService: httpService);
+});
+
+/// Provider for fetching user applications from backend
+final userApplicationsProvider = FutureProvider.family<List<Application>, int>((
+  ref,
+  userId,
+) async {
+  final service = ref.watch(applicationServiceProvider);
+  return service.fetchUserApplications(userId);
+});
+
+/// Provider for user credit score
+final userCreditScoreProvider = FutureProvider.family<int?, int>((
+  ref,
+  userId,
+) async {
+  final service = ref.watch(applicationServiceProvider);
+  return service.getUserCreditScore(userId);
+});

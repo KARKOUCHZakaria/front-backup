@@ -1,0 +1,13 @@
+{
+  "document_type": "cin",
+  "feature_columns": [
+    "is_expired",
+    "ocr_confidence",
+    "image_quality",
+    "has_photo",
+    "text_legible",
+    "correct_format"
+  ],
+  "trained_date": "2025-12-24 21:27:52",
+  "version": "1.0.0"
+}

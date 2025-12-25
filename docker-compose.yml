@@ -1,0 +1,158 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (optional - remove if using Aiven cloud)
+  postgres:
+    image: postgres:15-alpine
+    container_name: creditai-postgres
+    environment:
+      POSTGRES_DB: creditai
+      POSTGRES_USER: creditai
+      POSTGRES_PASSWORD: creditai_password_2024
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.utf8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/clean_database.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - creditai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U creditai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ML Service - Python FastAPI with Tesseract OCR
+  ml-service:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    container_name: creditai-ml
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    networks:
+      - creditai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  # Backend - Spring Boot Application
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: creditai-backend
+    ports:
+      - "8081:8081"
+    environment:
+      # Use local PostgreSQL (comment out if using Aiven cloud)
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/creditai
+      - SPRING_DATASOURCE_USERNAME=creditai
+      - SPRING_DATASOURCE_PASSWORD=creditai_password_2024
+      
+      # Or use Aiven cloud (uncomment and update credentials)
+      # - SPRING_DATASOURCE_URL=jdbc:postgresql://your-aiven-instance.aivencloud.com:20506/defaultdb?sslmode=require
+      # - SPRING_DATASOURCE_USERNAME=avnadmin
+      # - SPRING_DATASOURCE_PASSWORD=your_aiven_password_here
+      
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=false
+      
+      # ML Service URL
+      - ML_SERVICE_URL=http://ml-service:8000
+      
+      # JWT Secret
+      - JWT_SECRET=YourSuperSecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong
+      
+      # File Upload
+      - FILE_UPLOAD_DIR=/app/uploads
+      - IDENTITY_SCAN_DIR=/app/uploads/identity-scans
+      
+      # CORS
+      - CORS_ALLOWED_ORIGINS=http://localhost,http://localhost:3000,http://frontend
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+    networks:
+      - creditai-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ml-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  # Frontend - Flutter Web Application (Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: creditai-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    networks:
+      - creditai-network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+networks:
+  creditai-network:
+    driver: bridge
+    name: creditai-network
+
+volumes:
+  postgres_data:
+    name: creditai-postgres-data
+  backend_uploads:
+    name: creditai-backend-uploads
+  backend_logs:
+    name: creditai-backend-logs

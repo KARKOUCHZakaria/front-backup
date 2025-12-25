@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
+import '../services/http_service.dart';
 
 /// Auth state that holds the current user and authentication status
 class AuthState {
@@ -35,7 +37,8 @@ class AuthState {
       error: error,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       needsVerification: needsVerification ?? this.needsVerification,
-      needsSupplementaryInfo: needsSupplementaryInfo ?? this.needsSupplementaryInfo,
+      needsSupplementaryInfo:
+          needsSupplementaryInfo ?? this.needsSupplementaryInfo,
     );
   }
 }
@@ -61,10 +64,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
       return true;
     } else {
-      state = state.copyWith(
-        isLoading: false,
-        error: result.error,
-      );
+      state = state.copyWith(isLoading: false, error: result.error);
       return false;
     }
   }
@@ -77,11 +77,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     if (result.success && result.user != null) {
       final user = result.user!;
-      
-      if (user.identityVerified) {
+
+      // After successful login, fetch full user data from backend
+      print('🔹 [AuthNotifier] Fetching full user data from backend...');
+      final fetchResult = await _authService.fetchCurrentUser();
+      final fullUser = fetchResult.success && fetchResult.user != null
+          ? fetchResult.user!
+          : user;
+
+      if (fullUser.identityVerified) {
         // Fully authenticated
         state = AuthState(
-          user: user,
+          user: fullUser,
           isAuthenticated: true,
           needsVerification: false,
           isLoading: false,
@@ -89,7 +96,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       } else {
         // Need to verify CIN
         state = AuthState(
-          user: user,
+          user: fullUser,
           isAuthenticated: false,
           needsVerification: true,
           isLoading: false,
@@ -97,16 +104,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
       return true;
     } else {
-      state = state.copyWith(
-        isLoading: false,
-        error: result.error,
-      );
+      state = state.copyWith(isLoading: false, error: result.error);
       return false;
     }
   }
 
   /// Verify CIN with photo
-  Future<bool> verifyCin(File photo) async {
+  Future<bool> verifyCin(
+    String cin, {
+    File? photoFile,
+    Uint8List? photoBytes,
+    String? filename,
+  }) async {
     if (state.user?.id == null) {
       state = state.copyWith(error: 'No user logged in');
       return false;
@@ -114,7 +123,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     state = state.copyWith(isLoading: true, error: null);
 
-    final result = await _authService.verifyCin(state.user!.id!, photo);
+    final result = await _authService.verifyCin(
+      state.user!.id!,
+      cin,
+      photo: photoFile,
+      photoBytes: photoBytes,
+      filename: filename,
+    );
 
     if (result.success && result.user != null) {
       // Update user with verification info
@@ -126,17 +141,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = AuthState(
         user: updatedUser,
-        isAuthenticated: false, // Not fully authenticated until supplementary info added
+        isAuthenticated:
+            false, // Not fully authenticated until supplementary info added
         needsVerification: false,
         needsSupplementaryInfo: true,
         isLoading: false,
       );
       return true;
     } else {
-      state = state.copyWith(
-        isLoading: false,
-        error: result.error,
-      );
+      state = state.copyWith(isLoading: false, error: result.error);
       return false;
     }
   }
@@ -174,10 +187,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
       return true;
     } else {
-      state = state.copyWith(
-        isLoading: false,
-        error: result.error,
-      );
+      state = state.copyWith(isLoading: false, error: result.error);
       return false;
     }
   }
@@ -194,8 +204,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
+/// Shared HttpService provider (singleton)
+final httpServiceProvider = Provider<HttpService>((ref) => HttpService());
+
 /// Provider for AuthService
-final authServiceProvider = Provider<AuthService>((ref) => AuthService());
+final authServiceProvider = Provider<AuthService>((ref) {
+  final httpService = ref.watch(httpServiceProvider);
+  return AuthService(httpService: httpService);
+});
 
 /// Provider for AuthNotifier
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {

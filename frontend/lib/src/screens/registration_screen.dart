@@ -21,7 +21,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+  final _cinController = TextEditingController(); // Add CIN controller
+
   File? _idCardImage;
   Uint8List? _idCardImageBytes; // For web
   String? _idCardImageName;
@@ -46,6 +47,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
+    _cinController.dispose(); // Dispose CIN controller
     super.dispose();
   }
 
@@ -54,7 +56,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       fromCamera: fromCamera,
       imageQuality: 80,
     );
-    
+
     if (result != null && result.isValid) {
       setState(() {
         if (kIsWeb) {
@@ -68,7 +70,19 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   }
 
   Future<void> _verifyCin() async {
-    if ((kIsWeb && _idCardImageBytes == null) || (!kIsWeb && _idCardImage == null)) {
+    // Validate CIN number
+    if (_cinController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your CIN number'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if ((kIsWeb && _idCardImageBytes == null) ||
+        (!kIsWeb && _idCardImage == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please capture or select your CIN photo'),
@@ -80,27 +94,15 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
     setState(() => _isProcessing = true);
 
-    // For web, we need to create a temporary file or pass bytes directly
-    final File? fileToUpload = kIsWeb 
-        ? null // TODO: Handle web upload with bytes
-        : _idCardImage;
-    
-    if (fileToUpload == null && kIsWeb) {
-      // For now, skip CIN verification on web
-      setState(() => _isProcessing = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('CIN verification coming soon for web. Proceeding...'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      if (mounted) {
-        context.go('/user/supplementary-info');
-      }
-      return;
-    }
-
-    final success = await ref.read(authProvider.notifier).verifyCin(fileToUpload!);
+    // Handle web (bytes) vs mobile (file) upload
+    final success = await ref
+        .read(authProvider.notifier)
+        .verifyCin(
+          _cinController.text.trim(),
+          photoFile: kIsWeb ? null : _idCardImage,
+          photoBytes: kIsWeb ? _idCardImageBytes : null,
+          filename: 'cin.jpg',
+        );
 
     setState(() => _isProcessing = false);
 
@@ -124,21 +126,19 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     }
   }
 
-  void _skipVerification() {
-    // Navigate directly to supplementary info without CIN verification
-    context.go('/user/supplementary-info');
-  }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
-    
+
     return Scaffold(
       backgroundColor: AppColors.darkBg,
       appBar: AppBar(
         backgroundColor: AppColors.darkBg,
-        title: const Text('Identity Verification', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Identity Verification',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.go('/login'),
@@ -156,15 +156,22 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primaryCyan.withOpacity(0.3)),
+                  border: Border.all(
+                    color: AppColors.primaryCyan.withOpacity(0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
                     CircleAvatar(
                       backgroundColor: AppColors.primaryCyan,
                       child: Text(
-                        user.username.isNotEmpty ? user.username[0].toUpperCase() : 'U',
-                        style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                        user.username.isNotEmpty
+                            ? user.username[0].toUpperCase()
+                            : 'U',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -174,25 +181,33 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                         children: [
                           Text(
                             user.username,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           Text(
                             user.email,
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     Icon(
                       user.identityVerified ? Icons.verified : Icons.pending,
-                      color: user.identityVerified ? Colors.green : Colors.orange,
+                      color: user.identityVerified
+                          ? Colors.green
+                          : Colors.orange,
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
             ],
-            
+
             Text(
               'Verify with CIN Photo',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -203,24 +218,61 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
             const SizedBox(height: 8),
             Text(
               'Take a photo of your national ID card (CIN) to verify your identity',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 32),
-            
+
+            // CIN Number Input Field
+            Text(
+              'CIN Number',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _cinController,
+              keyboardType: TextInputType.text,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Enter your CIN number',
+                hintStyle: TextStyle(color: AppColors.textSecondary),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.05),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.textSecondary.withOpacity(0.3),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.textSecondary.withOpacity(0.3),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.primaryCyan,
+                    width: 2,
+                  ),
+                ),
+                prefixIcon: Icon(Icons.badge, color: AppColors.primaryCyan),
+              ),
+            ),
+            const SizedBox(height: 24),
+
             // ID Card Upload Section
             _buildIdCardUpload(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Action buttons
-            if (_idCardImage != null) ...[
-              _buildVerifyButton(),
-              const SizedBox(height: 16),
-            ],
-            
+            _buildVerifyButton(),
+            const SizedBox(height: 16),
             _buildSkipButton(),
           ],
         ),
@@ -230,11 +282,13 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
   Widget _buildIdCardUpload() {
     final isLoading = ref.watch(authLoadingProvider);
-    
+
     return Column(
       children: [
         GestureDetector(
-          onTap: (_isProcessing || isLoading) ? null : () => _pickImage(fromCamera: true),
+          onTap: (_isProcessing || isLoading)
+              ? null
+              : () => _pickImage(fromCamera: true),
           child: Container(
             height: 200,
             width: double.infinity,
@@ -242,7 +296,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               color: Colors.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: _idCardImage != null ? AppColors.primaryCyan : AppColors.textSecondary.withOpacity(0.3),
+                color: _idCardImage != null
+                    ? AppColors.primaryCyan
+                    : AppColors.textSecondary.withOpacity(0.3),
                 width: 2,
                 strokeAlign: BorderSide.strokeAlignInside,
               ),
@@ -262,101 +318,110 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                     ),
                   )
                 : _idCardImage == null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add_a_photo, size: 48, color: AppColors.textSecondary),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Tap to capture CIN',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Front side of your national ID card',
-                            style: TextStyle(
-                              color: AppColors.textSecondary.withOpacity(0.6),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
-                            child: kIsWeb && _idCardImageBytes != null
-                                ? Image.memory(
-                                    _idCardImageBytes!,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    fit: BoxFit.cover,
-                                  )
-                                : _idCardImage != null
-                                    ? Image.file(
-                                        _idCardImage!,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Container(),
-                          ),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryCyan,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.check_circle, color: Colors.black, size: 16),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Ready',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 8,
-                            right: 8,
-                            child: IconButton(
-                              onPressed: () => _pickImage(fromCamera: true),
-                              icon: const Icon(Icons.camera_alt),
-                              color: Colors.white,
-                              style: IconButton.styleFrom(
-                                backgroundColor: Colors.black54,
-                              ),
-                            ),
-                          ),
-                        ],
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add_a_photo,
+                        size: 48,
+                        color: AppColors.textSecondary,
                       ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Tap to capture CIN',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Front side of your national ID card',
+                        style: TextStyle(
+                          color: AppColors.textSecondary.withOpacity(0.6),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  )
+                : Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: kIsWeb && _idCardImageBytes != null
+                            ? Image.memory(
+                                _idCardImageBytes!,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                            : _idCardImage != null
+                            ? Image.file(
+                                _idCardImage!,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                            : Container(),
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryCyan,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.black,
+                                size: 16,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Ready',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: IconButton(
+                          onPressed: () => _pickImage(fromCamera: true),
+                          icon: const Icon(Icons.camera_alt),
+                          color: Colors.white,
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.black54,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
         const SizedBox(height: 12),
         // Gallery option
         TextButton.icon(
-          onPressed: (_isProcessing || ref.watch(authLoadingProvider)) 
-              ? null 
+          onPressed: (_isProcessing || ref.watch(authLoadingProvider))
+              ? null
               : () => _pickImage(fromCamera: false),
           icon: const Icon(Icons.photo_library, size: 20),
           label: const Text('Or choose from gallery'),
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.textSecondary,
-          ),
+          style: TextButton.styleFrom(foregroundColor: AppColors.textSecondary),
         ),
       ],
     );
@@ -364,7 +429,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
   Widget _buildVerifyButton() {
     final isLoading = ref.watch(authLoadingProvider);
-    
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -380,7 +445,10 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
             ? const SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.black,
+                ),
               )
             : const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -404,23 +472,59 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   Widget _buildSkipButton() {
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton(
-        onPressed: _skipVerification,
-        style: OutlinedButton.styleFrom(
+      child: ElevatedButton(
+        onPressed: _continueRegistration,
+        style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          side: BorderSide(color: AppColors.textSecondary.withOpacity(0.3)),
+          backgroundColor: AppColors.darkTeal,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: Text(
-          'Skip for now',
+          'Continue Registration',
           style: TextStyle(
             fontSize: 16,
-            color: AppColors.textSecondary,
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _continueRegistration() async {
+    // Validate that CIN and image are provided
+    if (_cinController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your CIN number to continue'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if ((kIsWeb && _idCardImageBytes == null) ||
+        (!kIsWeb && _idCardImage == null)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please upload your CIN photo to continue'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Continue without verification but ensure we have the data
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'CIN information saved. Please complete phone verification.',
+        ),
+        backgroundColor: Colors.orange,
+      ),
+    );
+    context.go('/user/supplementary-info');
   }
 }
